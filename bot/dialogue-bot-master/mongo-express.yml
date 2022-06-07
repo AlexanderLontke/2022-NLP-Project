@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=vwl-chatbot
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=monopolytask
+      - ME_CONFIG_MONGODB_SERVER=mongo-db
+      - ME_CONFIG_BASICAUTH_USERNAME=vwl-chatbot
+      - ME_CONFIG_BASICAUTH_PASSWORD=monopolytask
+    ports:
+      - "8081:8081"
