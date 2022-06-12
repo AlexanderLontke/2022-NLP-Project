@@ -6,6 +6,8 @@ from abc import abstractmethod, ABC
 from dialogue_bot.models.context import TTLContext
 from dialogue_bot.models.utils import islist
 from dialogue_bot.models.utter_phrase import UtterPhrase
+from dialogue_bot.models.inputs.nl import NLInput
+from dialogue_bot.models.response_generator import ResponseGenerator
 
 if typing.TYPE_CHECKING:
     from dialogue_bot.bot_session import BotSession
@@ -300,4 +302,17 @@ class DefaultNLAction(JoinedAction):
         super().__init__(actions, **kwargs)
 
 
+class NLPAction(Action):
 
+    def __init__(self, name, response_generator: ResponseGenerator):
+        self._name = name
+        self._response_generator = response_generator
+
+    @property
+    def name(self):
+        return self._name
+
+    def _do_execute(self, session: 'BotSession'):
+        user_input = session.iu_result.user_input
+        response = self._response_generator.generate_response(user_input=user_input)
+        session.dispatcher.utter(session, response)

@@ -70,27 +70,6 @@ class DefaultIU(IU):
             NLUPipelineElement(RasaNLU(env, 'rasa.rasa', confidence_threshold=0.48))
         ]))
 
-        self.add_nlu(PipelineNLU(env, 'gensim', [
-            NLUPipelineElement(RegexExpressionRanker(env, 'gensim.expression-regex'),
-                               expression_usage=ExpressionUsage.PERFECT_MATCH),
-            NLUPipelineElement(IndexExpressionRanker(env, 'gensim.index'),
-                               expression_usage=ExpressionUsage.FILTER_TOPK, expression_top_k=50),
-            NLUPipelineElement(PhraseExpressionRanker(env, 'gensim.phrase',
-                                                      VectorTextScorer('gensim.scorer',
-                                                                       AggTextVectorizer('gensim.textvec',
-                                                                                         NLTKWordTokenizer(
-                                                                                             'gensim.wordvec'),
-                                                                                         GensimVectorizer(
-                                                                                             'gensim.wordtok')
-                                                                                         ),
-                                                                       True
-                                                                       ),
-                                                      confidence_threshold=0.86
-                                                      )
-                               ),
-            NLUPipelineElement(RegexEntityExtractor(env, 'phrase.entity-regex'), use_expressions=False),
-        ]))
-
         self.add_nlu(PipelineNLU(env, 'senttran', [
             NLUPipelineElement(RegexExpressionRanker(env, 'senttran.expression-regex'),
                                expression_usage=ExpressionUsage.PERFECT_MATCH),
