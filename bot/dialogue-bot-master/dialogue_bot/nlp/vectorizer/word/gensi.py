@@ -11,14 +11,20 @@ logger = logging.getLogger(__name__)
 
 
 class GensimVectorizer(WordVectorizer):
-
-    def __init__(self, id: str,
-                 model_path: str = os.path.join(project_settings.STATIC_DATA_DIRPATH, 'GoogleNews-vectors-negative300.bin')):
+    def __init__(
+        self,
+        id: str,
+        model_path: str = os.path.join(
+            project_settings.STATIC_DATA_DIRPATH, "GoogleNews-vectors-negative300.bin"
+        ),
+    ):
         super().__init__(id)
         self._model_path = model_path
 
-        logger.info('Loading model from {}...'.format(self._model_path))
-        self.model = gensim.models.KeyedVectors.load_word2vec_format(self._model_path, binary=True)
+        logger.info("Loading model from {}...".format(self._model_path))
+        self.model = gensim.models.KeyedVectors.load_word2vec_format(
+            self._model_path, binary=True
+        )
 
     @property
     def dim(self) -> int:
@@ -35,6 +41,6 @@ class GensimVectorizer(WordVectorizer):
         return [self.vectorize(word) for word in words]
 
 
-if __name__ == '__main__':
-    vectorizer = GensimVectorizer('GensimVectorizer')
-    print(vectorizer.vectorize('car'))
+if __name__ == "__main__":
+    vectorizer = GensimVectorizer("GensimVectorizer")
+    print(vectorizer.vectorize("car"))

@@ -22,7 +22,7 @@ def deserialize_annotation(dct: dict) -> dict:
     for k, (class_name, v) in dct.items():
 
         # numpy-arrays
-        if class_name == 'ndarray':
+        if class_name == "ndarray":
             v = np.array(v)
 
         res[k] = v
@@ -35,8 +35,8 @@ class TextScorer(ABC):
 
     @abstractmethod
     def annotate(self, text: str) -> dict:
-        raise NotImplementedError('Implement in Subclass')
+        raise NotImplementedError("Implement in Subclass")
 
     @abstractmethod
     def similarity(self, annotation1: dict, annotation2: dict) -> float:
-        raise NotImplementedError('Implement in Subclass')
+        raise NotImplementedError("Implement in Subclass")

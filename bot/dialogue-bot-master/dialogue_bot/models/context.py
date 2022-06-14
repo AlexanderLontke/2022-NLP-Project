@@ -12,6 +12,7 @@ class TTLContext(object):
         self.lived += 1
         if self.lifetime is not None:
             self.remaining = max(-1, self.remaining - 1)
+
     @property
     def is_dead(self) -> bool:
         if self.lifetime is None:
@@ -22,8 +23,8 @@ class TTLContext(object):
         return '("{}": {})'.format(self.name, self.remaining)
 
 
-if __name__ == '__main__':
-    c = TTLContext('my-context', lifetime=1)
+if __name__ == "__main__":
+    c = TTLContext("my-context", lifetime=1)
     while not c.is_dead:
         print(c)
         print(c.lifetime)

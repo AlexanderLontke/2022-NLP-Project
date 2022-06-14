@@ -20,8 +20,7 @@ class KeyedInput(UserInput):
 
     def to_repr_dict(self) -> dict:
         return {
-            'type': self.__class__.__name__,
-            'key': self.key,
-            'args': self.args,
+            "type": self.__class__.__name__,
+            "key": self.key,
+            "args": self.args,
         }
-

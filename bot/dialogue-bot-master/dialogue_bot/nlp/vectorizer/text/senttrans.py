@@ -9,10 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class SentenceTransformerVectorizer(TextVectorizer):
-
-    def __init__(self, id: str, model: str = 'sentence-transformers/all-mpnet-base-v2'):
+    def __init__(self, id: str, model: str = "sentence-transformers/all-mpnet-base-v2"):
         super().__init__(id)
-        logger.info('Loading model {}...'.format(model))
+        logger.info("Loading model {}...".format(model))
         self.model = SentenceTransformer(model)
 
     @property

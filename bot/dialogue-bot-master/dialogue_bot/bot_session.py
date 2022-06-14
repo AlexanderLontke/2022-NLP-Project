@@ -20,7 +20,12 @@ class BotSession(object):
     By providing multiple users with their own sessions, their individual conversations with the bot do not interfere.
     """
 
-    def __init__(self, env: 'BotEnv', dialogue_state: 'DialogueState' = None, dispatcher: 'Dispatcher' = None):
+    def __init__(
+        self,
+        env: "BotEnv",
+        dialogue_state: "DialogueState" = None,
+        dispatcher: "Dispatcher" = None,
+    ):
         """
         Creates a session.
         :param env:            The bot.
@@ -35,13 +40,13 @@ class BotSession(object):
         self.env = env
         self.dialogue_state = dialogue_state
         self.dispatcher = dispatcher
-        self.iu_result: 'IUResult' = None
+        self.iu_result: "IUResult" = None
 
     def reset_dialogue(self):
-        """ Resets the dialogue back to the start """
+        """Resets the dialogue back to the start"""
         self.dialogue_state = self.env.create_dialogue_state()
 
-    def update_entity_slots(self, entities: Iterable['ExtractedEntity']):
+    def update_entity_slots(self, entities: Iterable["ExtractedEntity"]):
         """
         Sets the default entity values and the passed entities.
         The passed entities will override the default values in this process.
@@ -59,6 +64,3 @@ class BotSession(object):
             nl_slots[ex_entity.entity].add(ex_entity)
         for k, vs in nl_slots.items():
             self.dialogue_state.set_slot(k, vs)
-
-
-

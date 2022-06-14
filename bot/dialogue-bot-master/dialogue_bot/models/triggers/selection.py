@@ -10,7 +10,7 @@ class SelectionTrigger(Trigger, ABC):
 
 
 class SingleSelectionTrigger(SelectionTrigger):
-    """ Triggered, when the user selects a specific option of a selection """
+    """Triggered, when the user selects a specific option of a selection"""
 
     def __init__(self, selection_key: str, selection_idx: int):
         """
@@ -20,19 +20,24 @@ class SingleSelectionTrigger(SelectionTrigger):
         self.selection_key = selection_key
         self.selection_idx = int(selection_idx)
 
-    def matches_input(self, input: 'UserInput') -> bool:
-        return isinstance(input, SelectionInput) and (input.selection_idx == self.selection_idx) and (input.selection_key == self.selection_key)
+    def matches_input(self, input: "UserInput") -> bool:
+        return (
+            isinstance(input, SelectionInput)
+            and (input.selection_idx == self.selection_idx)
+            and (input.selection_key == self.selection_key)
+        )
 
     def __repr__(self):
-        return '({}: "{}":{})'.format(self.__class__.__name__, self.selection_key, self.selection_idx)
+        return '({}: "{}":{})'.format(
+            self.__class__.__name__, self.selection_key, self.selection_idx
+        )
 
 
 class AnySelectionTrigger(SelectionTrigger):
-    """ Triggered, when the user selects any option of a selection """
+    """Triggered, when the user selects any option of a selection"""
 
-    def matches_input(self, input: 'UserInput') -> bool:
+    def matches_input(self, input: "UserInput") -> bool:
         return isinstance(input, SelectionInput)
 
     def __repr__(self):
-        return '({})'.format(self.__class__.__name__)
-
+        return "({})".format(self.__class__.__name__)

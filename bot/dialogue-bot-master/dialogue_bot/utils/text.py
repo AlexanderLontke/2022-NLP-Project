@@ -4,13 +4,16 @@ import random
 from typing import List, Dict, Union
 
 
-def replace_spans(inp: Union[str, list], replacements: List[dict],
-                  value_func=lambda x: x,
-                  else_func=lambda x: x,
-                  random_mode: bool = False,
-                  shuffle: bool = True,
-                  max_realizations: int = None,
-                  output_replacements: bool = False):
+def replace_spans(
+    inp: Union[str, list],
+    replacements: List[dict],
+    value_func=lambda x: x,
+    else_func=lambda x: x,
+    random_mode: bool = False,
+    shuffle: bool = True,
+    max_realizations: int = None,
+    output_replacements: bool = False,
+):
     """
     Replaces specified spans of a text or a list with the given replacements.
     :param inp: Text or list
@@ -43,7 +46,7 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
         return res
 
     def replacement_values(replacement: dict):
-        v = replacement['values']
+        v = replacement["values"]
         return [v] if not isinstance(v, list) else v
 
     def split_to_parts(replacements: List[dict]):
@@ -53,17 +56,23 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
         """
 
         id_replacements = enumerate(replacements)  # give replacements an id
-        id_replacements = sorted(id_replacements, key=lambda t: (t[1]['start'], -t[1]['end']))  # sort by 'start'
+        id_replacements = sorted(
+            id_replacements, key=lambda t: (t[1]["start"], -t[1]["end"])
+        )  # sort by 'start'
 
         parts = []
         remaining_inp = inp
         offset = 0
         for i, dct in id_replacements:
-            start, end = dct['start'] + offset, dct['end'] + offset
+            start, end = dct["start"] + offset, dct["end"] + offset
             if start < 0:
                 continue  # overlap
 
-            before, extr, after = remaining_inp[:start], remaining_inp[start: end], remaining_inp[end:]
+            before, extr, after = (
+                remaining_inp[:start],
+                remaining_inp[start:end],
+                remaining_inp[end:],
+            )
 
             # convert before into part
             parts.append((False, before))
@@ -78,8 +87,14 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
         parts.append((False, remaining_inp))
         return parts
 
-    def realize(replacements: List[dict], parts: List[tuple], repl_values: Dict[str, int], value_func, else_func,
-                output_replacements: bool):
+    def realize(
+        replacements: List[dict],
+        parts: List[tuple],
+        repl_values: Dict[str, int],
+        value_func,
+        else_func,
+        output_replacements: bool,
+    ):
         res = None
         res_replacements = []
         start = 0
@@ -90,10 +105,12 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
                 span = value_func(value)
 
                 res_replacement = {k: v for k, v in replacement.items()}
-                res_replacement['res_start'] = start  # add additional attribute
-                res_replacement['res_end'] = start + len(span)  # add additional attribute
-                res_replacement['res_value'] = value  # add additional attribute
-                res_replacement['res_span'] = span  # add additional attribute
+                res_replacement["res_start"] = start  # add additional attribute
+                res_replacement["res_end"] = start + len(
+                    span
+                )  # add additional attribute
+                res_replacement["res_value"] = value  # add additional attribute
+                res_replacement["res_span"] = span  # add additional attribute
                 res_replacements.append(res_replacement)
             else:
                 span = else_func(x)
@@ -111,7 +128,9 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
 
     parts = split_to_parts(replacements)
     used_replacement_idxs = [i for (b, i) in parts if b]
-    nr_realizations = mult([len(replacement_values(replacements[i])) for i in used_replacement_idxs])
+    nr_realizations = mult(
+        [len(replacement_values(replacements[i])) for i in used_replacement_idxs]
+    )
 
     res = []
     if random_mode:
@@ -119,17 +138,47 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
         for e in range(nr_realizations):
             if (max_realizations is not None) and (max_realizations == e):
                 break
-            repl_values = {i: random.choice(range(len(replacement_values(replacements[i])))) for i in
-                           used_replacement_idxs}
-            res.append(realize(replacements, parts, repl_values, value_func, else_func, output_replacements))
+            repl_values = {
+                i: random.choice(range(len(replacement_values(replacements[i]))))
+                for i in used_replacement_idxs
+            }
+            res.append(
+                realize(
+                    replacements,
+                    parts,
+                    repl_values,
+                    value_func,
+                    else_func,
+                    output_replacements,
+                )
+            )
     else:
         # deterministic realizations
         for e, value_idxs in enumerate(
-                itertools.product(*[range(len(replacement_values(replacements[i]))) for i in used_replacement_idxs])):
-            if (max_realizations is not None) and (max_realizations == e) and (not shuffle):
+            itertools.product(
+                *[
+                    range(len(replacement_values(replacements[i])))
+                    for i in used_replacement_idxs
+                ]
+            )
+        ):
+            if (
+                (max_realizations is not None)
+                and (max_realizations == e)
+                and (not shuffle)
+            ):
                 break
             repl_values = {i: j for i, j in zip(used_replacement_idxs, value_idxs)}
-            res.append(realize(replacements, parts, repl_values, value_func, else_func, output_replacements))
+            res.append(
+                realize(
+                    replacements,
+                    parts,
+                    repl_values,
+                    value_func,
+                    else_func,
+                    output_replacements,
+                )
+            )
 
         if shuffle:
             random.shuffle(res)
@@ -140,9 +189,13 @@ def replace_spans(inp: Union[str, list], replacements: List[dict],
     return res
 
 
-if __name__ == '__main__':
-    for x in replace_spans('01234567890', [
-        {'start': 0, 'end': 0 + 2, 'values': 'XXXX'},
-        {'start': 5, 'end': 5 + 2, 'values': ['WWW', 'ZZZ']},
-    ], output_replacements=True):
+if __name__ == "__main__":
+    for x in replace_spans(
+        "01234567890",
+        [
+            {"start": 0, "end": 0 + 2, "values": "XXXX"},
+            {"start": 5, "end": 5 + 2, "values": ["WWW", "ZZZ"]},
+        ],
+        output_replacements=True,
+    ):
         print(x)

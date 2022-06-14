@@ -28,10 +28,10 @@ class Action(ABC):
         pass
 
     @abstractmethod
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         pass
 
-    def execute(self, session: 'BotSession'):
+    def execute(self, session: "BotSession"):
         logger.debug('Execute action "{}"'.format(self.name))
         session.dispatcher.before_action(session, self)
         self._do_execute(session)
@@ -52,9 +52,9 @@ class NoneAction(Action):
 
     @property
     def name(self):
-        return 'NoneAction'
+        return "NoneAction"
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         pass
 
 
@@ -63,7 +63,7 @@ class FuncAction(Action):
 
     def __init__(self, action_func, name: str = None):
         if name is None:
-            name = 'FuncAction'
+            name = "FuncAction"
         self._name = name
         self._action_func = action_func
 
@@ -71,12 +71,13 @@ class FuncAction(Action):
     def name(self):
         return self._name
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         self._action_func(session)
 
 
 class ExecuteIntentAction(Action):
     """Executes the specified intent"""
+
     def __init__(self, intent_id: str):
         self._intent_id = intent_id
 
@@ -84,21 +85,22 @@ class ExecuteIntentAction(Action):
     def name(self):
         return 'execute_intent("{}")'.format(self._intent_id)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.env.intent(self._intent_id).action.execute(session)
 
 
 class CustomAction(Action):
     """Executes a custom action specified by a name"""
+
     def __init__(self, name: str, **kwargs):
         self._name = name
         self._args = kwargs
 
     @property
     def name(self):
-        return 'custom({})'.format(self._name)
+        return "custom({})".format(self._name)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.dispatcher.custom(session, self._name, **self._args)
 
 
@@ -111,7 +113,10 @@ class NLAction(Action):
         if not islist(text_choices):
             text_choices = [text_choices]
 
-        text_choices = [(UtterPhrase(r) if not isinstance(r, UtterPhrase) else r) for r in text_choices]
+        text_choices = [
+            (UtterPhrase(r) if not isinstance(r, UtterPhrase) else r)
+            for r in text_choices
+        ]
 
         self._text_choices = text_choices.copy()
         self._default_render_func = default_render_func
@@ -121,7 +126,7 @@ class NLAction(Action):
     def name(self):
         return 'nl("{}")'.format(self._text_choices[0].text)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         # render utterance
 
         slots = session.dialogue_state.slots
@@ -129,9 +134,15 @@ class NLAction(Action):
         # select a response (prioritize responses that have the slots needed to be rendered)
         text_choices = self._text_choices.copy()
         random.shuffle(text_choices)
-        text_choices = sorted([c for c in text_choices], key=lambda c: c.render_missing(slots), reverse=False)
+        text_choices = sorted(
+            [c for c in text_choices],
+            key=lambda c: c.render_missing(slots),
+            reverse=False,
+        )
 
-        response = text_choices[0].render(session.env, slots, default_render_func=self._default_render_func)
+        response = text_choices[0].render(
+            session.env, slots, default_render_func=self._default_render_func
+        )
         session.dispatcher.utter(session, response, **self._args)
 
 
@@ -141,6 +152,7 @@ class Choice(object):
     A choice is uniquely identified by a key and an index (idx).
     The index can be used when there are multiple choices with the same key.
     """
+
     def __init__(self, key: str, idx: int, text: str, **kwargs):
         self.key = key
         self.idx = idx
@@ -154,7 +166,13 @@ class Choice(object):
 class ChoiceAction(Action):
     """Returns a list of choices for the user"""
 
-    def __init__(self, choices, text: str = None, default_render_func=lambda entity: None, **kwargs):
+    def __init__(
+        self,
+        choices,
+        text: str = None,
+        default_render_func=lambda entity: None,
+        **kwargs
+    ):
         if not islist(choices):
             choices = [choices]
 
@@ -165,22 +183,37 @@ class ChoiceAction(Action):
 
     @property
     def name(self):
-        return 'choice({})'.format(self._choices)
+        return "choice({})".format(self._choices)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         # render choices
 
         slots = session.dialogue_state.slots
         choices = [
-            Choice(c.key, c.idx,
-                   UtterPhrase(c.text).render(session.env, slots, default_render_func=self._default_render_func),
-                   **c.args) for c in self._choices]
+            Choice(
+                c.key,
+                c.idx,
+                UtterPhrase(c.text).render(
+                    session.env, slots, default_render_func=self._default_render_func
+                ),
+                **c.args
+            )
+            for c in self._choices
+        ]
         session.dispatcher.choice(session, choices, text=self._text, **self._args)
 
 
 class MediaAction(Action):
-    """ Displays a media object for the user specified by media_id"""
-    def __init__(self, media_id: str, media_type: str = None, title: str = None, desc: str = None, **kwargs):
+    """Displays a media object for the user specified by media_id"""
+
+    def __init__(
+        self,
+        media_id: str,
+        media_type: str = None,
+        title: str = None,
+        desc: str = None,
+        **kwargs
+    ):
         self.media_id = media_id
         self.media_type = media_type
         self.title = title
@@ -189,11 +222,17 @@ class MediaAction(Action):
 
     @property
     def name(self):
-        return 'media({})'.format(self.media_id)
+        return "media({})".format(self.media_id)
 
-    def _do_execute(self, session: 'BotSession'):
-        session.dispatcher.media(session, self.media_id, media_type=self.media_type, title=self.title, desc=self.desc,
-                                 **self.args)
+    def _do_execute(self, session: "BotSession"):
+        session.dispatcher.media(
+            session,
+            self.media_id,
+            media_type=self.media_type,
+            title=self.title,
+            desc=self.desc,
+            **self.args
+        )
 
 
 class SlotSetAction(Action):
@@ -205,9 +244,9 @@ class SlotSetAction(Action):
 
     @property
     def name(self):
-        return 'slot_set({}: {})'.format(self._slot, self._value)
+        return "slot_set({}: {})".format(self._slot, self._value)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.dialogue_state.set_slot(self._slot, self._value)
 
 
@@ -219,9 +258,9 @@ class SlotClearAction(Action):
 
     @property
     def name(self):
-        return 'slot_clear({})'.format(self._slot)
+        return "slot_clear({})".format(self._slot)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.dialogue_state.clear_slot(self._slot)
 
 
@@ -233,9 +272,11 @@ class ContextSetAction(Action):
 
     @property
     def name(self):
-        return 'context_set("{}", remaining={})'.format(self._context.name, self._context.remaining)
+        return 'context_set("{}", remaining={})'.format(
+            self._context.name, self._context.remaining
+        )
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.dialogue_state.set_context(self._context)
 
 
@@ -249,7 +290,7 @@ class ContextClearAction(Action):
     def name(self):
         return 'context_clear("{}")'.format(self._context_name)
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         session.dialogue_state.clear_context(self._context_name)
 
 
@@ -271,7 +312,7 @@ class JoinedAction(Action):
 
     def __init__(self, actions: list, name: str = None):
         if name is None:
-            name = 'JoinedAction'
+            name = "JoinedAction"
         self._name = name
         self._actions = actions
 
@@ -279,13 +320,14 @@ class JoinedAction(Action):
     def name(self):
         return self._name
 
-    def _do_execute(self, session: 'BotSession'):
+    def _do_execute(self, session: "BotSession"):
         for action in self._actions:
             action.execute(session)
 
 
 class DefaultNLAction(JoinedAction):
-    """ Returns a natural language response and sets contexts after that"""
+    """Returns a natural language response and sets contexts after that"""
+
     def __init__(self, responses, contexts=None, **kwargs):
         if contexts is None:
             contexts = []
@@ -297,22 +339,7 @@ class DefaultNLAction(JoinedAction):
 
         contexts = [((x, None) if isinstance(x, str) else x) for x in contexts]
 
-        actions = [NLAction(response) for response in responses] + \
-                  [ContextSetAction(n, lifetime=l) for n, l in contexts]
+        actions = [NLAction(response) for response in responses] + [
+            ContextSetAction(n, lifetime=l) for n, l in contexts
+        ]
         super().__init__(actions, **kwargs)
-
-
-class NLPAction(Action):
-
-    def __init__(self, name, response_generator: ResponseGenerator):
-        self._name = name
-        self._response_generator = response_generator
-
-    @property
-    def name(self):
-        return self._name
-
-    def _do_execute(self, session: 'BotSession'):
-        user_input = session.iu_result.user_input
-        response = self._response_generator.generate_response(user_input=user_input)
-        session.dispatcher.utter(session, response)

@@ -16,22 +16,26 @@ def timestamp(milliseconds=False) -> str:
 
 
 _LOGGING_COLORS = {
-    'intent': 'yellow',
-    'entity': 'green',
-    'value': 'blue',
-    'expression': 'blue',
-    'phrase': 'blue',
-    'domain': 'blue',
-    'slot': 'green',
-    'context': 'blue',
-    'bot-utterance': 'blue',
-    'user-utterance': 'blue',
+    "intent": "yellow",
+    "entity": "green",
+    "value": "blue",
+    "expression": "blue",
+    "phrase": "blue",
+    "domain": "blue",
+    "slot": "green",
+    "context": "blue",
+    "bot-utterance": "blue",
+    "user-utterance": "blue",
 }
 
 
 def logcolor(key, text):
-    return colored(text, _LOGGING_COLORS.get(key, 'blue'))
+    return colored(text, _LOGGING_COLORS.get(key, "blue"))
 
 
-coloredlogs.install(level='DEBUG', fmt='{}:{}'.format(os.getpid(), threading.get_ident()) + ' %(module)-20s%(levelname)-10s%(message)s')
+coloredlogs.install(
+    level="DEBUG",
+    fmt="{}:{}".format(os.getpid(), threading.get_ident())
+    + " %(module)-20s%(levelname)-10s%(message)s",
+)
 logging.basicConfig(level=logging.DEBUG)

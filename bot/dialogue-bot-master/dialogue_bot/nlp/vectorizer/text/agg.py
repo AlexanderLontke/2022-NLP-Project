@@ -8,10 +8,16 @@ if typing.TYPE_CHECKING:
     from dialogue_bot.nlp.vectorizer.word.word_vectorizer import WordVectorizer
     from dialogue_bot.nlp.tokenizer.tokenizer import WordTokenizer
 
-class AggTextVectorizer(TextVectorizer):
 
-    def __init__(self, id: str, word_tokenizer: 'WordTokenizer', word_vectorizer: 'WordVectorizer',
-                 remove_stopwords: bool = False, stopwords: Iterable = None):
+class AggTextVectorizer(TextVectorizer):
+    def __init__(
+        self,
+        id: str,
+        word_tokenizer: "WordTokenizer",
+        word_vectorizer: "WordVectorizer",
+        remove_stopwords: bool = False,
+        stopwords: Iterable = None,
+    ):
         super().__init__(id)
         self.word_tokenizer = word_tokenizer
         self.word_vectorizer = word_vectorizer
@@ -27,9 +33,12 @@ class AggTextVectorizer(TextVectorizer):
 
     def _rm_stopwords(self, words):
         # for the first token ignore cases (e.g. "And for Germany?")
-        return [w for i, w in enumerate(words)
-                if (i == 0 and w.lower() not in [s.lower() for s in self.stopwords]) or (
-                            i > 0 and w not in self.stopwords)]
+        return [
+            w
+            for i, w in enumerate(words)
+            if (i == 0 and w.lower() not in [s.lower() for s in self.stopwords])
+            or (i > 0 and w not in self.stopwords)
+        ]
 
     def vectorize_bulk(self, texts: List[str]) -> List[np.ndarray]:
         res = []

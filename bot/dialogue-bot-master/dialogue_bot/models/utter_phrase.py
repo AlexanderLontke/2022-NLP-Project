@@ -16,7 +16,8 @@ class UtterPhrase(KeyComparable):
         - "((country)) is a very nice country"
         - "I see that you want to buy a ((car))"
     """
-    PLACEHOLDER_PATTERN = r'\(\((?P<placeholder>[^\[\]]*?)\)\)'  # ((country))
+
+    PLACEHOLDER_PATTERN = r"\(\((?P<placeholder>[^\[\]]*?)\)\)"  # ((country))
 
     comp_placeholder_pattern = None
 
@@ -25,15 +26,19 @@ class UtterPhrase(KeyComparable):
 
         # compile regex patterns
         if UtterPhrase.comp_placeholder_pattern is None:
-            UtterPhrase.comp_placeholder_pattern = re.compile(UtterPhrase.PLACEHOLDER_PATTERN)
+            UtterPhrase.comp_placeholder_pattern = re.compile(
+                UtterPhrase.PLACEHOLDER_PATTERN
+            )
 
     def key_tuple(self) -> tuple:
-        return self.text,
+        return (self.text,)
 
-    def _render_slot(self, env: 'BotEnv', obj) -> str:
+    def _render_slot(self, env: "BotEnv", obj) -> str:
         # render list of objects
         if islist(obj):
-            return LANG_ENUMERATIONS[env.language](obj, lambda o: self._render_slot(env, o))
+            return LANG_ENUMERATIONS[env.language](
+                obj, lambda o: self._render_slot(env, o)
+            )
 
         # render an ExtractedEntity
         if isinstance(obj, ExtractedEntity):
@@ -44,17 +49,19 @@ class UtterPhrase(KeyComparable):
     def render_missing(self, slots: dict) -> int:
         res = 0
         for m in UtterPhrase.comp_placeholder_pattern.finditer(self.text):
-            k = m.group('placeholder')
+            k = m.group("placeholder")
             if k not in slots:
                 res += 1
         return res
 
-    def render(self, env: 'BotEnv', slots: dict, default_render_func=lambda entity: None) -> str:
+    def render(
+        self, env: "BotEnv", slots: dict, default_render_func=lambda entity: None
+    ) -> str:
         index_offset = 0
         text = self.text
         for m in UtterPhrase.comp_placeholder_pattern.finditer(self.text):
             start, end = m.start() + index_offset, m.end() + index_offset
-            k = m.group('placeholder')
+            k = m.group("placeholder")
 
             if k in slots:
                 replacement = slots[k]
