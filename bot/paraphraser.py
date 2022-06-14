@@ -22,9 +22,9 @@ class T5Paraphraser(Paraphraser):
         encoding = self.tokenizer.encode_plus(
             text, pad_to_max_length=True, return_tensors="pt"
         )
-        input_ids, attention_masks = encoding["input_ids"].to("cuda"), encoding[
+        input_ids, attention_masks = encoding["input_ids"], encoding[
             "attention_mask"
-        ].to("cuda")
+        ]
         outputs = self.model.generate(
             input_ids=input_ids,
             attention_mask=attention_masks,
@@ -41,4 +41,4 @@ class T5Paraphraser(Paraphraser):
                 output, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
             result += line
-        return result
+        return result + "\nOriginal docstring: " + input_string

@@ -22,4 +22,4 @@ if __name__ == "__main__":
     bot.start(True)
 
     session = BotSession(bot)
-    bot.respond(session, NLInput("I live in Germany"))
+    bot.respond(session, NLInput("establish SSH tunnel"))
