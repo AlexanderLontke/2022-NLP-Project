@@ -33,7 +33,7 @@ class T5Paraphraser(Paraphraser):
             top_k=120,
             top_p=0.95,
             early_stopping=True,
-            num_return_sequences=5,
+            num_return_sequences=1,
         )
         result = ""
         for output in outputs:
