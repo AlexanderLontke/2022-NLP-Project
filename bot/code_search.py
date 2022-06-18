@@ -1,5 +1,4 @@
 import torch
-import ast
 import numpy as np
 
 from tqdm import tqdm
@@ -10,15 +9,9 @@ from text_dataset import TextDataset
 from torch.utils.data import DataLoader, SequentialSampler
 
 
-class CodeSearchResult:
-    def __init__(self, code_string: str, doc_string: str):
-        self.code_string = code_string
-        self.doc_string = doc_string
-
-
 class CodeSearch(ABC):
     @abstractmethod
-    def find_code_for_query(self, query: str) -> CodeSearchResult:
+    def find_code_for_query(self, query: str) -> str:
         pass
 
 
@@ -64,7 +57,7 @@ class RobertaCodeSearch(CodeSearch):
         else:
             self.vecs = torch.from_numpy(np.load(file="./embeddings.npy"))
 
-    def find_code_for_query(self, query: str) -> CodeSearchResult:
+    def find_code_for_query(self, query: str) -> str:
         query_vec = self.model(self.tokenizer(query, return_tensors="pt")["input_ids"])
         scores = torch.einsum("ab,cb->ac", query_vec, self.vecs)
         scores = torch.softmax(scores, -1).detach().numpy()
@@ -72,8 +65,4 @@ class RobertaCodeSearch(CodeSearch):
         scores = scores.argsort()[-5:][::-1]
         result = self.query_dataset.data[scores[0]]
 
-        code = result["code"]
-        docstring = ast.get_docstring(ast.parse(code).body[0])
-        docstring = docstring.replace('\n', "")
-        return CodeSearchResult(code, docstring)
-
+        return result["code"]
