@@ -35,10 +35,7 @@ class T5Paraphraser(Paraphraser):
             early_stopping=True,
             num_return_sequences=1,
         )
-        result = ""
-        for output in outputs:
-            line = self.tokenizer.decode(
-                output, skip_special_tokens=True, clean_up_tokenization_spaces=True
-            )
-            result += line
+        result = self.tokenizer.decode(
+            outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
+        )
         return result + "\nOriginal docstring: " + input_string
