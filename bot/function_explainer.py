@@ -36,7 +36,8 @@ def get_module_and_function(function_name: str, module_name: str, install_module
     except ModuleNotFoundError:
         if install_module:
             try:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", module_name])
+                pypi_module_name = module_name.replace("_", "-")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", pypi_module_name])
                 return get_module_and_function(function_name, module_name, install_module=False)
             except subprocess.CalledProcessError:
                 return None
