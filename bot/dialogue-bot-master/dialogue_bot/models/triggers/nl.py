@@ -39,7 +39,7 @@ class AnyNLTrigger(NLTrigger):
         return "({})".format(self.__class__.__name__)
 
 
-class FallbackNLTrigger(Trigger):
+class FallbackNLTrigger(NLTrigger):
     """Triggered, when there is an utterance in natural language and no intent could be determined"""
 
     def matches_input(self, input: "UserInput") -> bool:
