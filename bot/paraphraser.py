@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from docstring_parser import parse
 
 
 class Paraphraser(ABC):
@@ -18,7 +19,14 @@ class T5Paraphraser(Paraphraser):
         self.model = AutoModelForSeq2SeqLM.from_pretrained("Vamsi/T5_Paraphrase_Paws")
 
     def paraphrase(self, input_string: str) -> str:
-        text = "paraphrase: " + input_string + " </s>"
+        parsed_docstring = parse(input_string)
+        parsed_description = ""
+        if parsed_docstring.short_description is not None:
+            parsed_description += parsed_docstring.short_description
+        elif parsed_docstring.long_description is not None:
+            parsed_description += parsed_docstring.long_description
+
+        text = "paraphrase: " + parsed_description + " </s>"
         encoding = self.tokenizer.encode_plus(
             text, pad_to_max_length=True, return_tensors="pt"
         )
@@ -35,7 +43,9 @@ class T5Paraphraser(Paraphraser):
             early_stopping=True,
             num_return_sequences=1,
         )
-        result = self.tokenizer.decode(
-            outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
-        )
-        return result + "\nOriginal docstring: " + input_string
+        result = ""
+        for output in outputs:
+            result += self.tokenizer.decode(
+                output, skip_special_tokens=True, clean_up_tokenization_spaces=True
+            )
+        return result  # + "\nOriginal docstring: " + input_string
