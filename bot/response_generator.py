@@ -1,10 +1,12 @@
+import re
 import inspect
+
 from abc import ABC, abstractmethod
 from importlib import import_module
 
 from dialogue_bot.models.inputs.nl import UserInput, NLInput
 from code_search import CodeSearch, RobertaCodeSearch
-from function_explainer import FunctionExplainer
+from function_explainer import FunctionExplainer, get_module_and_function
 
 
 class ResponseGenerator(ABC):
@@ -38,13 +40,18 @@ class FunctionExplainerResponseGenerator(ResponseGenerator):
     def generate_response(self, user_input: UserInput) -> str:
         if isinstance(user_input, NLInput):
             input_text: str = user_input.text
-            input_text = input_text[13:]
-            module_name, function_name = input_text.split(".")
-            module = import_module(module_name)
-            method = getattr(module, function_name)
-            source: str = inspect.getsource(method)
-            return self.function_explainer.explain_function(
-                source_code=source
-            )
+            python_function_pattern = r"([A-z]+)\.([A-z]+)\(.*\)"
+            match_object = re.search(python_function_pattern, input_text)
+            if match_object is None:
+                return "Please specify method using the following pattern: module.function()"
+            module_name = match_object.group(1)
+            function_name = match_object.group(2)
+            source: str = get_module_and_function(function_name, module_name)
+            if source is None:
+                return "I could not find the specified module and function."
+            else:
+                return self.function_explainer.explain_function(
+                    source_code=source
+                )
         else:
             return "I don't understand this kind of input."
