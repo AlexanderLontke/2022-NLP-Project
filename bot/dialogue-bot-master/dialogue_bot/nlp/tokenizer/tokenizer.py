@@ -10,4 +10,4 @@ class WordTokenizer(ABC):
         pass
 
     def tokenize(self, text: str) -> List[str]:
-        return [text[fr: to] for fr, to in self.tokenize_spans(text)]
+        return [text[fr:to] for fr, to in self.tokenize_spans(text)]

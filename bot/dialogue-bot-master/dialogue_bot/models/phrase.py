@@ -13,14 +13,14 @@ class PhraseEntity(object):
         :param value:       The entity-value-class
         """
         if end <= start:
-            raise ValueError('end cannot be <= start')
+            raise ValueError("end cannot be <= start")
         self.start = start
         self.end = end
         self.entity = entity
         self.value = value
 
     def __repr__(self):
-        return '({}={})'.format(self.entity, self.value)
+        return "({}={})".format(self.entity, self.value)
 
 
 class Phrase(KeyComparable):
@@ -49,8 +49,9 @@ class Phrase(KeyComparable):
     }
     """
 
-    def __init__(self, expression_id: str, text: str,
-                 entities: List[PhraseEntity] = None):
+    def __init__(
+        self, expression_id: str, text: str, entities: List[PhraseEntity] = None
+    ):
         if entities is None:
             entities = []
 
@@ -61,13 +62,9 @@ class Phrase(KeyComparable):
             self.annotate(entity)
 
     def key_tuple(self) -> tuple:
-        return (
-            self.__class__.__name__,
-            self.expression_id,
-            self.text
-        )
+        return (self.__class__.__name__, self.expression_id, self.text)
 
-    def annotate(self, entity: 'PhraseEntity'):
+    def annotate(self, entity: "PhraseEntity"):
         # assert that self.entities are in order
         before = [e for e in self.entities if e.end <= entity.start]
         after = [e for e in self.entities if e.start >= entity.end]
@@ -77,12 +74,16 @@ class Phrase(KeyComparable):
             self.entities = before + [entity] + after
 
     def __repr__(self):
-        entity_repr = lambda e: '({}={}:"{}")'.format(e.entity, e.value, self.text[e.start:e.end])
-        return '("{}" | {})'.format(self.text, ' | '.join([entity_repr(e) for e in self.entities]))
+        entity_repr = lambda e: '({}={}:"{}")'.format(
+            e.entity, e.value, self.text[e.start : e.end]
+        )
+        return '("{}" | {})'.format(
+            self.text, " | ".join([entity_repr(e) for e in self.entities])
+        )
 
 
-if __name__ == '__main__':
-    phrase = Phrase(None, 'I live in Switzerland and Germany')
-    phrase.annotate(PhraseEntity(10, 21, 'country', 'CH'))
-    phrase.annotate(PhraseEntity(26, 35, 'country', 'DE'))
+if __name__ == "__main__":
+    phrase = Phrase(None, "I live in Switzerland and Germany")
+    phrase.annotate(PhraseEntity(10, 21, "country", "CH"))
+    phrase.annotate(PhraseEntity(26, 35, "country", "DE"))
     print(phrase)

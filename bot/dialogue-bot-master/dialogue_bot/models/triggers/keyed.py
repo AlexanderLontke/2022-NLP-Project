@@ -12,12 +12,12 @@ logger = logging.getLogger(__name__)
 
 
 class KeyedTrigger(Trigger):
-    """ Triggered by a `KeyedInput` that has the specified key """
+    """Triggered by a `KeyedInput` that has the specified key"""
 
     def __init__(self, key: str):
         self.key = key
 
-    def matches_input(self, input: 'UserInput') -> bool:
+    def matches_input(self, input: "UserInput") -> bool:
         return isinstance(input, KeyedInput) and (input.key == self.key)
 
     def __repr__(self):

@@ -25,10 +25,11 @@ class DialogueState(object):
             Therefore, slots can be seen as the "memory" of the chatbot.
     """
 
-    def __init__(self,
-                 contexts: List['TTLContext'] = None,
-                 slots: Dict[str, any] = None,
-                 ):
+    def __init__(
+        self,
+        contexts: List["TTLContext"] = None,
+        slots: Dict[str, any] = None,
+    ):
         if contexts is None:
             contexts = []
         if slots is None:
@@ -53,11 +54,11 @@ class DialogueState(object):
         if name in self._contexts:
             del self._contexts[name]
 
-    def context(self, name) -> Optional['TTLContext']:
+    def context(self, name) -> Optional["TTLContext"]:
         return self._contexts.get(name, None)
 
     @property
-    def contexts(self) -> List['TTLContext']:
+    def contexts(self) -> List["TTLContext"]:
         return list(self._contexts.values())
 
     @property
@@ -67,7 +68,7 @@ class DialogueState(object):
     # SLOTS ############################################################################################################
 
     def set_slot(self, slot: str, value):
-        """ Note that value can also be a list of values """
+        """Note that value can also be a list of values"""
         self._slots[slot] = value
 
     def clear_slot(self, slot: str):
@@ -89,20 +90,29 @@ class DialogueState(object):
         self._contexts = {n: c for n, c in self._contexts.items() if not c.is_dead}
 
     def plog(self):
-        logger.info('-' * 100)
-        logger.debug('Current Dialogue State:')
-        logger.debug(logcolor('context', '\tContexts:'))
-        for c in sorted(self.contexts, key=lambda x: (x.remaining if x.remaining is not None else 0)):
-            logger.info(logcolor('context', '\t\t● {}: {} {}'.format(c.name, c.remaining, c.lived)))
-        logger.debug(logcolor('slot', '\tSlots:'))
+        logger.info("-" * 100)
+        logger.debug("Current Dialogue State:")
+        logger.debug(logcolor("context", "\tContexts:"))
+        for c in sorted(
+            self.contexts, key=lambda x: (x.remaining if x.remaining is not None else 0)
+        ):
+            logger.info(
+                logcolor(
+                    "context", "\t\t● {}: {} {}".format(c.name, c.remaining, c.lived)
+                )
+            )
+        logger.debug(logcolor("slot", "\tSlots:"))
         for k, v in self.slots.items():
-            logger.info(logcolor('slot', '\t\t● {}: {}'.format(k, v)))
-        logger.info('-' * 100)
+            logger.info(logcolor("slot", "\t\t● {}: {}".format(k, v)))
+        logger.info("-" * 100)
 
     def to_repr_dict(self) -> dict:
         return {
-            'contexts': [{'name': c.name, 'remaining': c.remaining, 'lived': c.lived} for c in self.contexts],
-            'slots': [{'slot': k, 'value': str(v)} for k, v in self.slots.items()]
+            "contexts": [
+                {"name": c.name, "remaining": c.remaining, "lived": c.lived}
+                for c in self.contexts
+            ],
+            "slots": [{"slot": k, "value": str(v)} for k, v in self.slots.items()],
         }
 
     def to_json(self) -> str:
@@ -116,4 +126,6 @@ class DialogueState(object):
         return self.from_json(self.to_json())
 
     def __repr__(self):
-        return '({}: contexts={}, slots={})'.format(self.__class__.__name__, self.contexts, self.slots)
+        return "({}: contexts={}, slots={})".format(
+            self.__class__.__name__, self.contexts, self.slots
+        )

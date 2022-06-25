@@ -21,10 +21,14 @@ class NLExpression(KeyComparable):
     which would contain phrases ["yes", "sure", "yep"].
     """
 
-    def __init__(self, env: 'BotEnv', id: str,
-                 regex_patterns: List[str] = None,
-                 exclude_regex_patterns: List[str] = None,
-                 phrase_patterns: list = None):
+    def __init__(
+        self,
+        env: "BotEnv",
+        id: str,
+        regex_patterns: List[str] = None,
+        exclude_regex_patterns: List[str] = None,
+        phrase_patterns: list = None,
+    ):
 
         if regex_patterns is None:
             regex_patterns = []
@@ -42,13 +46,22 @@ class NLExpression(KeyComparable):
             self.add_phrase_pattern(x)
 
     def key_tuple(self) -> tuple:
-        return self.id,
+        return (self.id,)
 
-    def add_phrase_pattern(self, pattern: Union[str, 'PhrasePattern']):
+    def add_phrase_pattern(self, pattern: Union[str, "PhrasePattern"]):
         if isinstance(pattern, str):
             pattern = PhrasePattern(self.id, pattern)
         self.phrase_patterns.add(pattern)
 
     def __repr__(self):
-        phrase_pattern_example = list(self.phrase_patterns)[0].pattern if len(self.phrase_patterns) > 0 else ''
-        return '({}: "{}", "{}" [{}])'.format(self.__class__.__name__, self.id, phrase_pattern_example, len(self.phrase_patterns))
+        phrase_pattern_example = (
+            list(self.phrase_patterns)[0].pattern
+            if len(self.phrase_patterns) > 0
+            else ""
+        )
+        return '({}: "{}", "{}" [{}])'.format(
+            self.__class__.__name__,
+            self.id,
+            phrase_pattern_example,
+            len(self.phrase_patterns),
+        )

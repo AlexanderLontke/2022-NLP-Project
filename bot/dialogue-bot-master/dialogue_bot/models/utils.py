@@ -8,13 +8,12 @@ from typing import List
 
 
 class KeyComparable(ABC):
-
     @abstractmethod
     def key_tuple(self) -> tuple:
-        raise NotImplementedError('Implement in subclass')
+        raise NotImplementedError("Implement in subclass")
 
     def __hash__(self) -> int:
-        """ Attention: This is no cryptographic hash (hashes might differ from session to session) """
+        """Attention: This is no cryptographic hash (hashes might differ from session to session)"""
         return hash(self.key_tuple())
 
     def crypto_hash(self) -> str:
@@ -31,10 +30,7 @@ class RankingScore(object):
         self.score = score
 
     def __repr__(self):
-        return '("{}": {:.3f})'.format(
-            self.ref_id,
-            self.score
-        )
+        return '("{}": {:.3f})'.format(self.ref_id, self.score)
 
     def to_repr_dict(self) -> dict:
         return self.__dict__
@@ -43,16 +39,19 @@ class RankingScore(object):
 def islist(obj):
     return isinstance(obj, list) or isinstance(obj, set)
 
+
 def chunk_list(lst: list, max_elems: int):
-    """Splits a (potential large) list into smaller sublists of the given maximum size """
+    """Splits a (potential large) list into smaller sublists of the given maximum size"""
     res = []
     for i in list(range(len(lst)))[::max_elems]:
-        res.append(lst[i:i+max_elems])
+        res.append(lst[i : i + max_elems])
     return res
 
 
-def complete_ranking(ranking: List['RankingScore'], ids: List, added_conf=0.) -> List['RankingScore']:
-    """ Will add or remove RankingScores until only RankingScores for ``ids`` exist """
+def complete_ranking(
+    ranking: List["RankingScore"], ids: List, added_conf=0.0
+) -> List["RankingScore"]:
+    """Will add or remove RankingScores until only RankingScores for ``ids`` exist"""
 
     res = []
     res_ids = set([])

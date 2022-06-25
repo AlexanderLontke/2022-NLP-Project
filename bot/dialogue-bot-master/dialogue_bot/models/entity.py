@@ -16,12 +16,16 @@ class Entity(KeyComparable):
     An examples of an entity is "country" with potential values "DE", "CH", "FR", ...
     In the context of a chatbot, we want to extract Entities with their values from user utterances in natural language.
     """
-    def __init__(self, env: 'BotEnv', id: str,
-                 name: str = None,
-                 value_refs: List[str] = None,
-                 default_values: List[str] = None,
-                 questions: List[str] = None,
-                 ):
+
+    def __init__(
+        self,
+        env: "BotEnv",
+        id: str,
+        name: str = None,
+        value_refs: List[str] = None,
+        default_values: List[str] = None,
+        questions: List[str] = None,
+    ):
         """
         Creates an entity.
         :param env:             The bot
@@ -41,7 +45,7 @@ class Entity(KeyComparable):
         if questions is None:
             questions = []
         if len(questions) <= 0:
-            questions = LANG_TEXTS['default_entity_questions'][env.language](name)
+            questions = LANG_TEXTS["default_entity_questions"][env.language](name)
 
         self.env = env
         self.name = name
@@ -51,11 +55,13 @@ class Entity(KeyComparable):
         self.questions = set(questions)
 
     def key_tuple(self) -> tuple:
-        return self.id,
+        return (self.id,)
 
     @property
-    def values(self) -> List['Value']:
+    def values(self) -> List["Value"]:
         return [self.env.value(value_ref) for value_ref in self.value_refs]
 
     def __repr__(self):
-        return '({}: "{}", {})'.format(self.__class__.__name__, self.id, self.value_refs)
+        return '({}: "{}", {})'.format(
+            self.__class__.__name__, self.id, self.value_refs
+        )

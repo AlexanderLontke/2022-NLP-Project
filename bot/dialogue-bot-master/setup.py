@@ -1,7 +1,6 @@
-
 import setuptools
 
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     reqs = f.read().splitlines()
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -24,9 +23,9 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     include_package_data=True,
-    package_data = {
-            '': ['*.yml'],
+    package_data={
+        "": ["*.yml"],
     },
-    python_requires='>=3.5',
-    install_requires=reqs
+    python_requires=">=3.5",
+    install_requires=reqs,
 )

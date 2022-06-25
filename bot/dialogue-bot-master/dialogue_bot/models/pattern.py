@@ -31,8 +31,8 @@ class PhrasePattern(KeyComparable):
     # "Hello"
     # "I live in ((country))"
     # "I live in [Germany][DE](country)"
-    ENTITY_PLACEHOLDER_PATTERN = r'\(\((?P<entity>[^\[\]]*?)\)\)'
-    ENTITY_ANNOTATION_PATTERN = r'(?:\[(?P<surface>[^\[\]]*?)\])(?:\[(?P<value>[^\[\]]*?)\])(?:\((?P<entity>[^\(\)]*?)\))'
+    ENTITY_PLACEHOLDER_PATTERN = r"\(\((?P<entity>[^\[\]]*?)\)\)"
+    ENTITY_ANNOTATION_PATTERN = r"(?:\[(?P<surface>[^\[\]]*?)\])(?:\[(?P<value>[^\[\]]*?)\])(?:\((?P<entity>[^\(\)]*?)\))"
 
     comp_entity_placeholder_pattern = None
     comp_entity_annotation_pattern = None
@@ -43,19 +43,24 @@ class PhrasePattern(KeyComparable):
 
         # compile regex patterns
         if PhrasePattern.comp_entity_placeholder_pattern is None:
-            PhrasePattern.comp_entity_placeholder_pattern = re.compile(PhrasePattern.ENTITY_PLACEHOLDER_PATTERN)
+            PhrasePattern.comp_entity_placeholder_pattern = re.compile(
+                PhrasePattern.ENTITY_PLACEHOLDER_PATTERN
+            )
         if PhrasePattern.comp_entity_annotation_pattern is None:
-            PhrasePattern.comp_entity_annotation_pattern = re.compile(PhrasePattern.ENTITY_ANNOTATION_PATTERN)
+            PhrasePattern.comp_entity_annotation_pattern = re.compile(
+                PhrasePattern.ENTITY_ANNOTATION_PATTERN
+            )
 
     def key_tuple(self) -> tuple:
-        return (
-            self.expression_id,
-            self.pattern
-        )
+        return (self.expression_id, self.pattern)
 
-    def _expand_entity_placeholders(self, env: 'BotEnv', max_phrases: Optional[int],
-                                    max_entity_values: int = None,
-                                    max_value_synonyms: int = None) -> Iterable[str]:
+    def _expand_entity_placeholders(
+        self,
+        env: "BotEnv",
+        max_phrases: Optional[int],
+        max_entity_values: int = None,
+        max_value_synonyms: int = None,
+    ) -> Iterable[str]:
         """
         Replaces "((entity))" placeholders in the text with real entity-annotations "[text][value](entity)".
         E.g.:
@@ -75,33 +80,48 @@ class PhrasePattern(KeyComparable):
         # create replacements
         replacements = []
         for m in PhrasePattern.comp_entity_placeholder_pattern.finditer(self.pattern):
-            entity_id = m.group('entity')
+            entity_id = m.group("entity")
             entity = env.entity(entity_id)
 
             repl_values = []
 
             nr_entity_values = 0  # how often the entity was replaced with a value
             for value in entity.values:
-                if (max_entity_values is not None) and (max_entity_values <= nr_entity_values):
+                if (max_entity_values is not None) and (
+                    max_entity_values <= nr_entity_values
+                ):
                     break
 
                 nr_value_synonyms = 0  # how often the value was replaced with a synonym
                 for synonym in value.synonyms:
-                    if (max_value_synonyms is not None) and (max_value_synonyms <= nr_value_synonyms):
+                    if (max_value_synonyms is not None) and (
+                        max_value_synonyms <= nr_value_synonyms
+                    ):
                         break
 
-                    repl_values.append('[{}][{}]({})'.format(synonym.text, synonym.value, entity.id))
+                    repl_values.append(
+                        "[{}][{}]({})".format(synonym.text, synonym.value, entity.id)
+                    )
                     nr_value_synonyms += 1
 
                 nr_entity_values += 1
 
-            replacements.append({'start': m.start(), 'end': m.end(), 'values': repl_values, 'stored__entity': entity_id})
+            replacements.append(
+                {
+                    "start": m.start(),
+                    "end": m.end(),
+                    "values": repl_values,
+                    "stored__entity": entity_id,
+                }
+            )
 
         # replace
-        for pattern in replace_spans(self.pattern, replacements, max_realizations=max_phrases):
+        for pattern in replace_spans(
+            self.pattern, replacements, max_realizations=max_phrases
+        ):
             yield pattern
 
-    def _phrase_from_pattern(self, pattern: str) -> 'Phrase':
+    def _phrase_from_pattern(self, pattern: str) -> "Phrase":
         """
         "I live in [Germany][DE](country)" =>  ("I live in Germany" | (country: DE "Germany"))
         """
@@ -109,36 +129,62 @@ class PhrasePattern(KeyComparable):
         # create replacements
         replacements = []
         for m in PhrasePattern.comp_entity_annotation_pattern.finditer(pattern):
-            surface = m.group('surface')
-            value = m.group('value')
-            entity_id = m.group('entity')
-            repl_val = {'value': value, 'surface': surface}
+            surface = m.group("surface")
+            value = m.group("value")
+            entity_id = m.group("entity")
+            repl_val = {"value": value, "surface": surface}
 
-            replacements.append({'start': m.start(), 'end': m.end(), 'values': [repl_val],
-                                 'stored__entity': entity_id})
+            replacements.append(
+                {
+                    "start": m.start(),
+                    "end": m.end(),
+                    "values": [repl_val],
+                    "stored__entity": entity_id,
+                }
+            )
 
         # replace
-        text, replacements = replace_spans(pattern, replacements, value_func=lambda t: t['surface'],
-                                           output_replacements=True)[0]
-        entities = [PhraseEntity(repl['res_start'], repl['res_end'], repl['stored__entity'],
-                                 repl['res_value']['value']) for repl in replacements]
+        text, replacements = replace_spans(
+            pattern,
+            replacements,
+            value_func=lambda t: t["surface"],
+            output_replacements=True,
+        )[0]
+        entities = [
+            PhraseEntity(
+                repl["res_start"],
+                repl["res_end"],
+                repl["stored__entity"],
+                repl["res_value"]["value"],
+            )
+            for repl in replacements
+        ]
 
         return Phrase(self.expression_id, text, entities)
 
-    def generate_phrases(self, env: 'BotEnv', max_phrases: Optional[int],
-                         max_entity_values: int = None,
-                         max_value_synonyms: int = None) -> Iterable['Phrase']:
-        for pattern in self._expand_entity_placeholders(env, max_phrases, max_entity_values=max_entity_values, max_value_synonyms=max_value_synonyms):
+    def generate_phrases(
+        self,
+        env: "BotEnv",
+        max_phrases: Optional[int],
+        max_entity_values: int = None,
+        max_value_synonyms: int = None,
+    ) -> Iterable["Phrase"]:
+        for pattern in self._expand_entity_placeholders(
+            env,
+            max_phrases,
+            max_entity_values=max_entity_values,
+            max_value_synonyms=max_value_synonyms,
+        ):
             yield self._phrase_from_pattern(pattern)
 
     def __repr__(self):
         return '("{}")'.format(self.pattern)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from dialogue_bot.bot_env import BotEnv
 
-    env = BotEnv('test', 'en')
+    env = BotEnv("test", "en")
     # env._init_dbs(True)
     # env._init_intents()
     #

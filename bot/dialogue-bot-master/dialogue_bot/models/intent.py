@@ -24,12 +24,14 @@ class CustomScore(ABC):
 
 
 class PerfectScore(CustomScore):
-    """ A perfect score is ranked on top of all other scores (e.g. any FloatScore) """
+    """A perfect score is ranked on top of all other scores (e.g. any FloatScore)"""
+
     pass
 
 
 class FloatScore(CustomScore):
-    """ A score given by a float value """
+    """A score given by a float value"""
+
     def __init__(self, value: float):
         self.value = value
 
@@ -47,19 +49,23 @@ class Intent(KeyComparable):
     override the results of `IU`. This can be done by overrinding the intent-methods `custom_score` or `custom_extract`.
     This can be used for special intents that may know themselves how they should be identified or extract entities.
     """
-    DEFAULT_DOMAIN = 'default'
 
-    def __init__(self, env: 'BotEnv', id: str,
-                 input_contexts: List[str] = None,
-                 domains: List[str] = None,
-                 nl_trigger: 'NLTrigger' = None,
-                 selection_trigger: 'SelectionTrigger' = None,
-                 keyed_trigger: 'KeyedTrigger' = None,
-                 action: 'Action' = None,
-                 verify: bool = True,
-                 verify_description: str = None,
-                 entity_filter: List[str] = None,
-                 ):
+    DEFAULT_DOMAIN = "default"
+
+    def __init__(
+        self,
+        env: "BotEnv",
+        id: str,
+        input_contexts: List[str] = None,
+        domains: List[str] = None,
+        nl_trigger: "NLTrigger" = None,
+        selection_trigger: "SelectionTrigger" = None,
+        keyed_trigger: "KeyedTrigger" = None,
+        action: "Action" = None,
+        verify: bool = True,
+        verify_description: str = None,
+        entity_filter: List[str] = None,
+    ):
         """
         Creates an intent.
         :param env:                   The Bot Environment this intent belongs to
@@ -93,35 +99,44 @@ class Intent(KeyComparable):
         self._verify_description = verify_description
         self.entity_filter = set(entity_filter) if entity_filter is not None else None
 
-    def has_contexts(self, dialogue_state: 'DialogueState') -> bool:
-        """ Determines if the required input contexts are present in the dialogue state """
+    def has_contexts(self, dialogue_state: "DialogueState") -> bool:
+        """Determines if the required input contexts are present in the dialogue state"""
         if not all([c in dialogue_state.context_names for c in self.input_contexts]):
             return False
         return True
 
-    def has_trigger(self, user_input: 'UserInput') -> bool:
-        """ Determines if the intent has the required triggers to process the user_input """
+    def has_trigger(self, user_input: "UserInput") -> bool:
+        """Determines if the intent has the required triggers to process the user_input"""
         triggers = [self.nl_trigger, self.selection_trigger, self.keyed_trigger]
         return any([t.matches_input(user_input) for t in triggers if t is not None])
 
-    def custom_score(self, user_input: 'UserInput', dialogue_state: 'DialogueState', score: 'CustomScore') -> 'CustomScore':
-        """ Use a custom score for the intent"""
+    def custom_score(
+        self,
+        user_input: "UserInput",
+        dialogue_state: "DialogueState",
+        score: "CustomScore",
+    ) -> "CustomScore":
+        """Use a custom score for the intent"""
         return score
 
-    def custom_extract(self, user_input: 'UserInput', dialogue_state: 'DialogueState',
-                       entities: Set['ExtractedEntity']) -> Set['ExtractedEntity']:
-        """ Allow the intent to (re-)extract entities"""
+    def custom_extract(
+        self,
+        user_input: "UserInput",
+        dialogue_state: "DialogueState",
+        entities: Set["ExtractedEntity"],
+    ) -> Set["ExtractedEntity"]:
+        """Allow the intent to (re-)extract entities"""
         return entities
 
-    def _do_execute(self, session: 'BotSession'):
-        """ Can be implemented instead of passing an action function to the constructor"""
-        NLAction('No response defined').execute(session)
+    def _do_execute(self, session: "BotSession"):
+        """Can be implemented instead of passing an action function to the constructor"""
+        NLAction("No response defined").execute(session)
 
     @property
-    def action(self) -> 'Action':
-        """ The action that should be executed when the intent is chosen """
+    def action(self) -> "Action":
+        """The action that should be executed when the intent is chosen"""
         if self._action is None:
-            return FuncAction(self._do_execute, name='{}-Action'.format(self.id))
+            return FuncAction(self._do_execute, name="{}-Action".format(self.id))
 
         return self._action
 
@@ -133,15 +148,27 @@ class Intent(KeyComparable):
     def verify_description(self) -> str:
         if self._verify_description is not None:
             return self._verify_description
-        elif (self.nl_trigger is not None) and isinstance(self.nl_trigger, PhraseNLTrigger) and (len(self.nl_trigger.expression.phrase_patterns) > 0):
-            return '"' + list(self.nl_trigger.expression.phrase_patterns)[0].pattern + '"'
+        elif (
+            (self.nl_trigger is not None)
+            and isinstance(self.nl_trigger, PhraseNLTrigger)
+            and (len(self.nl_trigger.expression.phrase_patterns) > 0)
+        ):
+            return (
+                '"' + list(self.nl_trigger.expression.phrase_patterns)[0].pattern + '"'
+            )
         else:
-            return '[Intent {}]'.format(self.id)
+            return "[Intent {}]".format(self.id)
 
     def key_tuple(self) -> tuple:
-        return self.id,
+        return (self.id,)
 
     def __repr__(self):
-        return '({}: "{}", domains={}, input_contexts={}, nl_trigger={}, selection_trigger={}, keyed_trigger={})' \
-            .format(self.__class__.__name__, self.id, self.domains, self.input_contexts, self.nl_trigger,
-                    self.selection_trigger, self.keyed_trigger)
+        return '({}: "{}", domains={}, input_contexts={}, nl_trigger={}, selection_trigger={}, keyed_trigger={})'.format(
+            self.__class__.__name__,
+            self.id,
+            self.domains,
+            self.input_contexts,
+            self.nl_trigger,
+            self.selection_trigger,
+            self.keyed_trigger,
+        )

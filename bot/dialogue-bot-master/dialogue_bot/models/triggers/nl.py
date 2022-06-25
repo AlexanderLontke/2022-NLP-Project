@@ -17,33 +17,33 @@ class NLTrigger(Trigger, ABC):
 
 
 class PhraseNLTrigger(NLTrigger):
-    """ Triggered, when there is an utterance in natural language that matches some predefined phrases/patterns """
+    """Triggered, when there is an utterance in natural language that matches some predefined phrases/patterns"""
 
-    def __init__(self, expression: 'NLExpression'):
+    def __init__(self, expression: "NLExpression"):
         self.expression = expression
 
-    def matches_input(self, input: 'UserInput') -> bool:
+    def matches_input(self, input: "UserInput") -> bool:
         return isinstance(input, NLInput)
 
     def __repr__(self):
-        return '({}: {})'.format(self.__class__.__name__, self.expression)
+        return "({}: {})".format(self.__class__.__name__, self.expression)
 
 
 class AnyNLTrigger(NLTrigger):
-    """ Triggered, when there is an arbitrary utterance in natural language """
+    """Triggered, when there is an arbitrary utterance in natural language"""
 
-    def matches_input(self, input: 'UserInput') -> bool:
+    def matches_input(self, input: "UserInput") -> bool:
         return isinstance(input, NLInput)
 
     def __repr__(self):
-        return '({})'.format(self.__class__.__name__)
+        return "({})".format(self.__class__.__name__)
 
 
-class FallbackNLTrigger(Trigger):
-    """ Triggered, when there is an utterance in natural language and no intent could be determined """
+class FallbackNLTrigger(NLTrigger):
+    """Triggered, when there is an utterance in natural language and no intent could be determined"""
 
-    def matches_input(self, input: 'UserInput') -> bool:
+    def matches_input(self, input: "UserInput") -> bool:
         return isinstance(input, NLInput)
 
     def __repr__(self):
-        return '({})'.format(self.__class__.__name__)
+        return "({})".format(self.__class__.__name__)
