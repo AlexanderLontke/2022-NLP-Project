@@ -5,6 +5,9 @@ import sys
 
 from importlib import import_module
 from typing import List, Optional
+
+import pkg_resources
+
 from paraphraser import Paraphraser, T5Paraphraser
 
 
@@ -43,6 +46,8 @@ def get_module_and_function(function_name: str, module_name: str, install_module
                 return None
         else:
             return None
+    except pkg_resources.ContextualVersionConflict:
+        return None
     except TypeError:
         return None
 
