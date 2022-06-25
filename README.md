@@ -5,6 +5,8 @@
 To run the chatbot in this repository you first need to create a new python environment and install the project
 requirements.
 
+<span style="color:red">## Python 3.8 is required for the dialogue-bot ##</span>
+
 ```bash
 python -m venv venv
 source venv/bin/activate
